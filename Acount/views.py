@@ -1,3 +1,5 @@
+from ast import Return
+from multiprocessing import context
 from rest_framework.permissions import  IsAuthenticated
 from rest_framework import status
 from rest_framework.views import APIView
@@ -9,9 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def get_tokens_for_user(user):
-    print(":::::::::",user)
     refresh = RefreshToken.for_user(user)
-    print("ssssssss",RefreshToken.for_user(user))
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),
@@ -22,12 +22,10 @@ class RegistrationAPI(APIView):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             users = serializer.save()
-            print("33333",users)
-            # token = get_tokens_for_user(users)
-            return Response({"msg":"Registration successfully"}
+            token = get_tokens_for_user(users)
+            return Response({"token":token,"msg":"Registration successfully"}
                             ,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    
     
     
 class UserLoginAPI(APIView):
@@ -77,3 +75,13 @@ class SandPasswordEmailAPI(APIView):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
     
+
+class UserPasswordResetView(APIView):
+    
+    renderer_classes = [UserRenderer]
+    def post(self, request,uid, token,  format=None):
+        serializer = userPasswordResetSerializer(data=request.data)
+        context = {"uid":uid,'token':token}
+        if serializer.is_valid(raise_exception=True):
+            return Response({"msg":"password reset successfully"},status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
