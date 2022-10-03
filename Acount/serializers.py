@@ -1,4 +1,5 @@
 from asyncore import write
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_bytes,DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from xml.dom import ValidationErr
@@ -40,6 +41,7 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=255,style={"input_type":"password"},write_only=True)
     password2 = serializers.CharField(max_length=255,style={"input_type":"password"},write_only=True)
     class Meta:
+        model = User
         fields = ['password','password2']
 
     def validate(self,attrs):
@@ -56,12 +58,14 @@ class SendEmailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
     class Meta:
         fields = ['email']
-
     def validate(self, attrs):
         email = attrs.get('email')
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email = email)
-
+            uid = urlsafe_base64_encode(force_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+            link = 'http://localhost/3000/acount/reset/'+uid+'/'+token
+            return attrs
         else:
             raise ValidationErr('you are not a register user')
         
