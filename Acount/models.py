@@ -1,3 +1,5 @@
+from distutils.command.upload import upload
+from pydoc import describe
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 # custom user manager create
@@ -55,3 +57,21 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+
+class MainCategory(models.Model):
+    categoryName = models.CharField(max_length=255)
+    categoryImage = models.ImageField(upload_to='Ecomm_Images')
+    description = models.CharField(max_length=255)
+    class Meta:
+        db_table = "MainCategory"
+        
+
+class SubCategory(models.Model):
+    mainCategoryId = models.ForeignKey(MainCategory, on_delete=models.CASCADE,default=123)
+
+    categoryName = models.CharField(max_length=255)
+    categoryImage = models.ImageField(upload_to = 'Ecomm_Images')
+    description = models.CharField(max_length=255)
+    class Meta:
+        db_table = 'SubCategory'

@@ -79,6 +79,7 @@ class SendEmailSerializer(serializers.ModelSerializer):
         
         
 class userPasswordResetSerializer(serializers.ModelSerializer):
+
     password = serializers.CharField(max_length=255,
                                      style={"input_type":"password"},write_only=True)
     password2 = serializers.CharField(max_length=255,
@@ -105,3 +106,13 @@ class userPasswordResetSerializer(serializers.ModelSerializer):
         except DjangoUnicodeDecodeError as identifier:
             PasswordResetTokenGenerator().check_token(user,token)
             raise ValidationErr("token is not valid or expired ")
+
+class MainCatgorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MainCategory
+        fields = '__all__'
+
+class SubCatgorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = '__all__'
