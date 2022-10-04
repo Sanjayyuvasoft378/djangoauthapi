@@ -168,12 +168,12 @@ class SubCategoryAPI(APIView):
             return Response({"msg":"Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-class SubCategoryAPI(APIView):
+class ChildCategoryAPI(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
     def post(self, request,format=None):
         try:
-            Serializer = SubCatgorySerializer(data = request.data)
+            Serializer = ChildCategorySerializer(data = request.data)
             if Serializer.is_valid():
                 Serializer.save()
                 return Response({"msg":"Data added successfully"},
@@ -186,8 +186,8 @@ class SubCategoryAPI(APIView):
 
     def get(self, request, format=None):
         try:
-            get_data = SubCategory.objects.all()
-            Serializer = SubCatgorySerializer(get_data, many=True)        
+            get_data = ChildCategory.objects.all()
+            Serializer = ChildCategorySerializer(get_data, many=True)        
             return Response(Serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"msg":"Internal server error {}".format(e)},
@@ -196,8 +196,8 @@ class SubCategoryAPI(APIView):
     def delete(self, request, format=None):
         try:
             id = request.GET.get('id')
-            get_data = SubCategory.objects.filter(id=id).delete()
-            SubCatgorySerializer(get_data,many=True)
+            get_data = ChildCategory.objects.filter(id=id).delete()
+            ChildCategorySerializer(get_data,many=True)
             return Response({"msg":"Data deleted successfully"},
                             status=status.HTTP_200_OK)
         except Exception as e:

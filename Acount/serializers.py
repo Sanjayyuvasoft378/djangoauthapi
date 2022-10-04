@@ -116,3 +116,8 @@ class SubCatgorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
         fields = '__all__'
+        
+class ChildCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildCategory
+        fields = '__all__'

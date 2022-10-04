@@ -75,3 +75,12 @@ class SubCategory(models.Model):
     description = models.CharField(max_length=255)
     class Meta:
         db_table = 'SubCategory'
+        
+        
+class ChildCategory(models.Model):
+    mainCategoryId = models.ForeignKey(MainCategory, on_delete=models.CASCADE)
+    subCategoryId = models.ForeignKey(SubCategory,on_delete=models.CASCADE)
+    categoryName = models.CharField(max_length=255)
+    categoryImage = models.ImageField(upload_to='Ecomm_images')
+    class Meta:
+        db_table = 'ChildCategory'
