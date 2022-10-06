@@ -203,4 +203,18 @@ class ChildCategoryAPI(APIView):
         except Exception as e:
             return Response({"msg":"Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-         
+        
+        
+        
+class EditProfileAPI(APIView):
+    renderer_classes = [UserRenderer] 
+    permission_classes = [IsAuthenticated]
+    def post(self, request,format=None):
+        try:
+            Data = request.data
+            Serializer = EditProfileSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return Response({"msg":"Profile update successfully"},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)

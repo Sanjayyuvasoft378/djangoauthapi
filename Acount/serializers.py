@@ -37,6 +37,11 @@ class MyProfileViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id','email','name']
+        
+class EditProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields ='__all__'
 
 class UserChangePasswordSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=255,
