@@ -7,6 +7,15 @@ from django.contrib.auth import authenticate
 from Acount.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 
+import base64
+import pyperclip
+with open("owen-beard-K21Dn4OVxNw-unsplash.jpg", "rb") as img_file:
+    my_string = base64.b64encode(img_file.read())
+    pyperclip.copy(str(my_string))
+    print("copied")
+print(my_string)
+
+
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
