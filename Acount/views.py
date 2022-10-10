@@ -1,3 +1,4 @@
+from shutil import ExecError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.views import APIView
@@ -6,15 +7,31 @@ from .serializers import *
 from django.contrib.auth import authenticate
 from Acount.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
-
+# for image uploading
+from django.core.files.uploadedfile import InMemoryUploadedFile
 import base64
-import pyperclip
-with open("owen-beard-K21Dn4OVxNw-unsplash.jpg", "rb") as img_file:
-    my_string = base64.b64encode(img_file.read())
-    pyperclip.copy(str(my_string))
-    print("copied")
-print(my_string)
+import io
+import os
+from PIL import Image
 
+
+def decodeDesignImage(data):
+    try:
+        data = base64.b64decode(data.encode('UTF-8'))
+        buf = io.BytesIO(data)
+        img = Image.open(buf)
+        return img
+    except:
+        return None
+
+
+def midea_upload(form):
+    fi = form['filename']
+    if fi.filename:
+        # This code will strip the leading absolute path from your file-name
+        fil = os.path.basename(fi.filename)
+        # open for reading & writing the file into the server
+        open(fil, 'wb').write(fi.file.read())
 
 
 def get_tokens_for_user(user):
@@ -31,7 +48,7 @@ class RegistrationAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             users = serializer.save()
             token = get_tokens_for_user(users)
-            return Response({"token": token, "msg": "Registration successfully"}, 
+            return Response({"token": token, "msg": "Registration successfully"},
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -50,8 +67,8 @@ class UserLoginAPI(APIView):
                 return Response({"token": token, "msg": "Login Success"},
                                 status=status.HTTP_200_OK)
             else:
-                return Response({"error": {"non_field_errors": 
-                    ['email or password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": {"non_field_errors":
+                                           ['email or password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -72,10 +89,10 @@ class UserChangePasswordAPI(APIView):
         serializer = UserChangePasswordSerializer(data=request.data,
                                                   context={'user': request.user})
         if serializer.is_valid(raise_exception=True):
-            return Response({"msg": "Password change Successfully"}, 
+            return Response({"msg": "Password change Successfully"},
                             status=status.HTTP_200_OK)
-        return Response(serializer.errors, 
-                        
+        return Response(serializer.errors,
+
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -85,9 +102,9 @@ class SandPasswordEmailAPI(APIView):
     def post(self, request, format=None):
         serializer = SendEmailSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            return Response({"msg": "link sent successfully"}, 
+            return Response({"msg": "link sent successfully"},
                             status=status.HTTP_200_OK)
-        return Response(serializer.errors, 
+        return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -98,7 +115,7 @@ class UserPasswordResetView(APIView):
         serializer = userPasswordResetSerializer(data=request.data)
         context = {"uid": uid, 'token': token}
         if serializer.is_valid(raise_exception=True):
-            return Response({"msg": "password reset successfully"}, 
+            return Response({"msg": "password reset successfully"},
                             status=status.HTTP_200_OK)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
@@ -107,15 +124,18 @@ class UserPasswordResetView(APIView):
 class MaincategoryAPI(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+
     def post(self, request, format=None):
         try:
-            Serializer = MainCatgorySerializer(data=request.data)
+            data = request.data
+            Serializer = MainCatgorySerializer(data=data)
+            data['categoryImage'] = midea_upload(data['categoryImage'])
             if Serializer.is_valid(raise_exception=True):
                 Serializer.save()
                 return Response({"msg": "Data Added successfully"},
                                 status=status.HTTP_201_CREATED)
-            return Response(Serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"msg": "something goes wrong"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -128,102 +148,148 @@ class MaincategoryAPI(APIView):
         except Exception as e:
             return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-    def delete(self, request,id,format=None):
+
+    def delete(self, request, id, format=None):
         try:
             id = request.GET.get('id')
             get_data = MainCategory.object.filter(id=id).delete()
-            MainCatgorySerializer(get_data,many=True)
-            return Response({"msg":"Data deleted successfully"},
+            MainCatgorySerializer(get_data, many=True)
+            return Response({"msg": "Data deleted successfully"},
                             status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},
+            return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
+
 class SubCategoryAPI(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
-    def post(self, request,format=None):
+
+    def post(self, request, format=None):
         try:
-            Serializer = SubCatgorySerializer(data = request.data)
+            Serializer = SubCatgorySerializer(data=request.data)
             if Serializer.is_valid():
                 Serializer.save()
-                return Response({"msg":"Data added successfully"},
+                return Response({"msg": "Data added successfully"},
                                 status=status.HTTP_201_CREATED)
             return Response(Serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},
+            return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, format=None):
         try:
             get_data = SubCategory.objects.all()
-            
-            Serializer = SubCatgorySerializer(get_data, many=True)        
-            return Response(Serializer.data,status=status.HTTP_200_OK)
+
+            Serializer = SubCatgorySerializer(get_data, many=True)
+            return Response(Serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},
+            return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
     def delete(self, request, format=None):
         try:
             id = request.GET.get('id')
             get_data = SubCategory.objects.filter(id=id).delete()
-            SubCatgorySerializer(get_data,many=True)
-            return Response({"msg":"Data deleted successfully"},
+            SubCatgorySerializer(get_data, many=True)
+            return Response({"msg": "Data deleted successfully"},
                             status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},
+            return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
+
 class ChildCategoryAPI(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
-    def post(self, request,format=None):
+
+    def post(self, request, format=None):
         try:
-            Serializer = ChildCategorySerializer(data = request.data)
+            Serializer = ChildCategorySerializer(data=request.data)
             if Serializer.is_valid():
                 Serializer.save()
-                return Response({"msg":"Data added successfully"},
+                return Response({"msg": "Data added successfully"},
                                 status=status.HTTP_201_CREATED)
             return Response(Serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},
+            return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, format=None):
         try:
             get_data = ChildCategory.objects.all()
-            Serializer = ChildCategorySerializer(get_data, many=True)        
-            return Response(Serializer.data,status=status.HTTP_200_OK)
+            Serializer = ChildCategorySerializer(get_data, many=True)
+            return Response(Serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},
+            return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
     def delete(self, request, format=None):
         try:
             id = request.GET.get('id')
             get_data = ChildCategory.objects.filter(id=id).delete()
-            ChildCategorySerializer(get_data,many=True)
-            return Response({"msg":"Data deleted successfully"},
+            ChildCategorySerializer(get_data, many=True)
+            return Response({"msg": "Data deleted successfully"},
                             status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},
+            return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        
-        
+
+
 class EditProfileAPI(APIView):
-    renderer_classes = [UserRenderer] 
+    renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
-    def post(self, request,format=None):
+
+    def post(self, request, format=None):
         try:
             Data = request.data
             Serializer = EditProfileSerializer(data=Data)
             if Serializer.is_valid():
                 Serializer.save()
-                return Response({"msg":"Profile update successfully"},status=status.HTTP_200_OK)
+                return Response({"msg": "Profile update successfully"}, 
+                                status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"msg": "Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ProductAPI(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        try:
+            data = request.data
+            data['productImage'] = midea_upload(data['productImage'])
+            Serializer = ProductSerializer(data=data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return Response({"msg": "Data added successfully"},
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({"msg": "Data not valid"},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"msg": "Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get(self, request, format=None):
+        try:
+            get_data = Product.objects.all()
+            Serializer = ProductSerializer(get_data, many=True)
+            return Response(Serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg": "Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    def delete(self, request,format=None):
+        try:
+            id = request.GET.get('id')
+            get_data = Product.objects.filter(id=id).delete()
+            ProductSerializer(get_data,many=True)
+            return Response({"msg":"Data delete successfully"},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg": "Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

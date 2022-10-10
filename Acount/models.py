@@ -1,5 +1,4 @@
-from distutils.command.upload import upload
-from pydoc import describe
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 # custom user manager create
@@ -65,6 +64,8 @@ class MainCategory(models.Model):
     description = models.CharField(max_length=255)
     class Meta:
         db_table = "MainCategory"
+    def __str__(self):
+        return self.categoryName
         
 
 class SubCategory(models.Model):
@@ -75,6 +76,8 @@ class SubCategory(models.Model):
     description = models.CharField(max_length=255)
     class Meta:
         db_table = 'SubCategory'
+    def __str__(self):
+        return self.categoryName
         
         
 class ChildCategory(models.Model):
@@ -82,5 +85,24 @@ class ChildCategory(models.Model):
     subCategoryId = models.ForeignKey(SubCategory,on_delete=models.CASCADE)
     categoryName = models.CharField(max_length=255)
     categoryImage = models.ImageField(upload_to='Ecomm_images')
+    description = models.CharField(max_length=255,default=True)
     class Meta:
         db_table = 'ChildCategory'
+    def __str__(self):
+        return self.categoryName
+    
+    
+class Product(models.Model):
+    mainCategoryId = models.ForeignKey(MainCategory,on_delete=models.CASCADE)
+    subCategoryId = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    childCategoryId = models.ForeignKey(ChildCategory, on_delete=models.CASCADE)
+    productName = models.CharField(max_length = 255)
+    productImage = models.ImageField(upload_to = 'EcommProductImages')
+    description = models.CharField(max_length = 255)
+    qty = models.IntegerField()
+    price = models.DecimalField(max_digits=2,decimal_places=2)
+    
+    class Meta:
+        db_table = 'Product'
+    def __str__(self):
+        return self.productName

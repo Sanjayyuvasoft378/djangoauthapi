@@ -31,3 +31,4 @@ class UserModelAdmin(BaseUserAdmin):
 admin.site.register(User, UserModelAdmin)
 admin.site.register(MainCategory)
 admin.site.register(SubCategory)
+admin.site.register(ChildCategory)
