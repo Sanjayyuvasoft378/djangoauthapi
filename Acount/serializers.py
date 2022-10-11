@@ -71,12 +71,9 @@ class SendEmailSerializer(serializers.ModelSerializer):
         email = attrs.get('email')
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email = email)
-            print("333",user)
             uid = urlsafe_base64_encode(force_bytes(user.id))
-            print('222',uid)
             token = PasswordResetTokenGenerator().make_token(user)
             link = 'http://localhost/3000/acount/reset/'+uid+'/'+token
-            print("link",link)
             return attrs
         else:
             raise ValidationErr('you are not a register user')

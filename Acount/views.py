@@ -1,3 +1,4 @@
+from http.client import ResponseNotReady
 from shutil import ExecError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -8,7 +9,6 @@ from django.contrib.auth import authenticate
 from Acount.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 # for image uploading
-from django.core.files.uploadedfile import InMemoryUploadedFile
 import base64
 import io
 import os
@@ -26,10 +26,10 @@ def decodeDesignImage(data):
 
 
 def midea_upload(form):
-    fi = form['filename']
-    if fi.filename:
+    fi = form['categoruImage']
+    if fi.categoruImage:
         # This code will strip the leading absolute path from your file-name
-        fil = os.path.basename(fi.filename)
+        fil = os.path.basename(fi.categoruImage)
         # open for reading & writing the file into the server
         open(fil, 'wb').write(fi.file.read())
 
@@ -262,9 +262,11 @@ class ProductAPI(APIView):
     def post(self, request, format=None):
         try:
             data = request.data
-            data['productImage'] = midea_upload(data['productImage'])
+            if len(request.FILES != 0):
+                data.productImage=request.FILES['productImage']
+                
             Serializer = ProductSerializer(data=data)
-            if Serializer.is_valid():
+            if Serializer.is_valid(raise_exception=True):
                 Serializer.save()
                 return Response({"msg": "Data added successfully"},
                                 status=status.HTTP_201_CREATED)
@@ -293,3 +295,23 @@ class ProductAPI(APIView):
         except Exception as e:
             return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+#########   LIST APIs  FOR DROPDOWN   ###############
+
+class MainCategoryListAPI(APIView):
+    renderer_classes = [UserRenderer]
+    def get(self, request,format=None):
+        try:
+            get_data = MainCategory.objects.all()
+            Serializer = MainCatgorySerializer(get_data,many=True)
+            return Response(Serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+

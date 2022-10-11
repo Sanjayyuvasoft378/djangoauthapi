@@ -1,8 +1,9 @@
-
+import django_heroku
 from datetime import timedelta
 import dj_database_url
 from pathlib import Path
 import os
+from pymongo import MongoClient
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -78,6 +79,11 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# import pymongo
+# client = pymongo.MongoClient('mongodb+srv://MrOPR:Sanju1411@cluster0.v7yvy.mongodb.net/MrOprEcommerce?retryWrites=true&w=majority')
+# db = client.mropr
+
+
 
 # DATABASES = {
 #     'default': {
@@ -175,4 +181,4 @@ SIMPLE_JWT = {
 
 } 
 
-
+django_heroku.settings(locals())

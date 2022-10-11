@@ -100,7 +100,7 @@ class Product(models.Model):
     productImage = models.ImageField(upload_to = 'EcommProductImages')
     description = models.CharField(max_length = 255)
     qty = models.IntegerField()
-    price = models.DecimalField(max_digits=2,decimal_places=2)
+    price = models.IntegerField()
     
     class Meta:
         db_table = 'Product'
