@@ -15,23 +15,23 @@ import os
 from PIL import Image
 
 
-def decodeDesignImage(data):
-    try:
-        data = base64.b64decode(data.encode('UTF-8'))
-        buf = io.BytesIO(data)
-        img = Image.open(buf)
-        return img
-    except:
-        return None
+# def decodeDesignImage(data):
+#     try:
+#         data = base64.b64decode(data.encode('UTF-8'))
+#         buf = io.BytesIO(data)
+#         img = Image.open(buf)
+#         return img
+#     except:
+#         return None
 
 
-def midea_upload(form):
-    fi = form['categoruImage']
-    if fi.categoruImage:
-        # This code will strip the leading absolute path from your file-name
-        fil = os.path.basename(fi.categoruImage)
-        # open for reading & writing the file into the server
-        open(fil, 'wb').write(fi.file.read())
+# def midea_upload(form):
+#     fi = form['categoruImage']
+#     if fi.categoruImage:
+#         # This code will strip the leading absolute path from your file-name
+#         fil = os.path.basename(fi.categoruImage)
+#         # open for reading & writing the file into the server
+#         open(fil, 'wb').write(fi.file.read())
 
 
 def get_tokens_for_user(user):
@@ -83,7 +83,7 @@ class MyProfileViewAPI(APIView):
 
 class UserChangePasswordAPI(APIView):
     renderer_classes = [UserRenderer]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         serializer = UserChangePasswordSerializer(data=request.data,
@@ -92,7 +92,6 @@ class UserChangePasswordAPI(APIView):
             return Response({"msg": "Password change Successfully"},
                             status=status.HTTP_200_OK)
         return Response(serializer.errors,
-
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -127,9 +126,16 @@ class MaincategoryAPI(APIView):
 
     def post(self, request, format=None):
         try:
-            data = request.data
-            Serializer = MainCatgorySerializer(data=data)
-            data['categoryImage'] = midea_upload(data['categoryImage'])
+            Data = request.data
+            Serializer = MainCatgorySerializer(data=Data)
+            fileitem = Data['categoryImage']
+            if fileitem:
+                fn = os.path.basename(fileitem)
+                open(fn, 'wb').write(fileitem.file.read())
+                message = 'The file "' + fn + '" was uploaded successfully'
+            else:
+                message = 'No file was uploaded'
+                print (message)
             if Serializer.is_valid(raise_exception=True):
                 Serializer.save()
                 return Response({"msg": "Data Added successfully"},
@@ -296,8 +302,60 @@ class ProductAPI(APIView):
             return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class PlanAPI(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        try:
+            Serializer = PlanSerializer(data = request.data)
+            if Serializer.is_valid(raise_exception=True):
+                Serializer.save()
+                return Response({"msg":"Data Added successfully"},
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({"msg":"fil form properly"},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)}
+                            ,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    def get(self, request, format=None):
+        try:
+            get_data = Plan.objects.all()
+            Serializer = PlanSerializer(get_data,many=True)
+            return Response(Serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)}
+                            ,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def delete(self, request, format=None):
+        try:
+            id = request.GET.get('id')
+            if id is not None:
+                get_data = Plan.objects.filter(id=id).delete()
+                PlanSerializer(get_data,many=True)
+                return Response({"msg":"Data deleted successfully"}, 
+                            status=status.HTTP_200_OK)
+            else:
+                return Response({"msg":"id does not match please try again"},status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class StaffAPI(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        try:
+            san = []
+            Serializer = StaffSerializer(data = request.data)
+            if Serializer.is_valid(raise_exception=True):
+                Serializer.save()
+            return Response({"msg":"Data added successfully"},
+                            status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #########   LIST APIs  FOR DROPDOWN   ###############
 

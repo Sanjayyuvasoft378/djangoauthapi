@@ -1,4 +1,4 @@
-import django_heroku
+# import django_heroku
 from datetime import timedelta
 import dj_database_url
 from pathlib import Path
@@ -7,7 +7,8 @@ from pymongo import MongoClient
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')  
+MEDIA_URL = '/media/'  
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -41,7 +42,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -130,6 +131,10 @@ REST_FRAMEWORK = {
     #     'rest_framework.renderers.JSONRenderer'
     # )
 }
+ALLOWED_HOSTS=['*']
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -181,4 +186,4 @@ SIMPLE_JWT = {
 
 } 
 
-django_heroku.settings(locals())
+# django_heroku.settings(locals())

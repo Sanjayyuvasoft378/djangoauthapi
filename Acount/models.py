@@ -1,4 +1,7 @@
 from email.policy import default
+from enum import unique
+from pyexpat import model
+from tokenize import blank_re
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 # custom user manager create
@@ -61,11 +64,14 @@ class User(AbstractBaseUser):
 class MainCategory(models.Model):
     categoryName = models.CharField(max_length=255)
     categoryImage = models.ImageField(upload_to='Ecomm_Images')
+    print(123123,categoryImage)
     description = models.CharField(max_length=255)
     class Meta:
         db_table = "MainCategory"
     def __str__(self):
         return self.categoryName
+
+
         
 
 class SubCategory(models.Model):
@@ -106,3 +112,23 @@ class Product(models.Model):
         db_table = 'Product'
     def __str__(self):
         return self.productName
+    
+    
+class Plan(models.Model):
+    planName = models.CharField(max_length=255)
+    planValue = models.IntegerField()
+    statusText = models.CharField(max_length=255)
+    class Meta:
+        db_table = "Plan"
+    def __str__(self):
+        return self.planName
+    
+class StaffModel(models.Model):
+    fullName = models.CharField(max_length=255)
+    email = models.EmailField(max_length=255, unique=True)
+    mobileNo = models.CharField(max_length=10)
+    address = models.TextField(max_length=255)
+    class Meta:
+        db_table = 'Staff'
+    def __str__(self):
+        return self.fullName

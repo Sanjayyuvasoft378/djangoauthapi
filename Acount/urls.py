@@ -1,5 +1,5 @@
 from pathlib import Path
-from Acount.views import ChildCategoryAPI, EditProfileAPI, MainCategoryListAPI, MaincategoryAPI, MyProfileViewAPI, ProductAPI, RegistrationAPI, SandPasswordEmailAPI, SubCategoryAPI, UserChangePasswordAPI, UserLoginAPI, UserPasswordResetView
+from Acount.views import ChildCategoryAPI, EditProfileAPI, MainCategoryListAPI, MaincategoryAPI, MyProfileViewAPI, PlanAPI, ProductAPI, RegistrationAPI, SandPasswordEmailAPI, SubCategoryAPI, UserChangePasswordAPI, UserLoginAPI, UserPasswordResetView
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
@@ -19,6 +19,6 @@ if settings.DEBUG:
     path('childcategory/',ChildCategoryAPI.as_view(),name='childcategory'),
     path('product/',ProductAPI.as_view(),name='Product'),
     path('maincatlist/',MainCategoryListAPI.as_view(),name='MainCategory'),
+    path('plan/',PlanAPI.as_view(), name='planapi'),
     ]
-    urlpatterns+= static(settings.MEDIA_URL,
-                              document_root=settings.MEDIA_ROOT)
+    urlpatterns+= static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

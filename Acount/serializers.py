@@ -1,4 +1,5 @@
 from asyncore import write
+from pyexpat import model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_bytes,DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
@@ -128,3 +129,17 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
+
+class PlanSerializer(serializers.ModelSerializer):
+    planName = serializers.CharField(max_length=255, style={"input_type":"text", "write_only":True})
+    planValue = serializers.CharField(max_length=255, style = {"input_value":"number", "write_only":True})
+
+    class Meta:
+        model = Plan
+        fields = '__all__'
+    
+class StaffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StaffModel
+        fields = '__all__'
+        
