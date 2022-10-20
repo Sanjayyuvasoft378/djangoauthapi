@@ -1,6 +1,7 @@
 from email.policy import default
 from enum import unique
 from pyexpat import model
+from statistics import mode
 from tokenize import blank_re
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
@@ -132,3 +133,22 @@ class StaffModel(models.Model):
         db_table = 'Staff'
     def __str__(self):
         return self.fullName
+    
+class DiscountModel(models.Model):
+    discountName = models.CharField(max_length=255)
+    discountType = models.CharField(max_length=255)
+    discountValue = models.CharField(max_length=255)
+    class Meta:
+        db_table = 'Discount'
+    def __str__(self):
+        return self.discountName
+       
+class OfferModel(models.Model):
+    offerName = models.CharField(max_length=255)
+    offerType = models.CharField(max_length=255)
+    offerValue = models.IntegerField()
+    class Meta:
+        db_table='Offer'
+    def __str__(self):
+        return self.offerName
+         

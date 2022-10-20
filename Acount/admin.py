@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from Acount.views import DiscountAPI
 from .models import *
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
@@ -32,3 +34,5 @@ admin.site.register(User, UserModelAdmin)
 admin.site.register(MainCategory)
 admin.site.register(SubCategory)
 admin.site.register(ChildCategory)
+admin.site.register(DiscountModel)
+admin.site.register(OfferModel)

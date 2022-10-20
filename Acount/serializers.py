@@ -143,3 +143,14 @@ class StaffSerializer(serializers.ModelSerializer):
         model = StaffModel
         fields = '__all__'
         
+class DiscountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DiscountModel
+        fields = '__all__'
+        
+        
+class OfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OfferModel
+        fields = '__all__'
+        

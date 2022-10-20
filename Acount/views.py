@@ -128,14 +128,7 @@ class MaincategoryAPI(APIView):
         try:
             Data = request.data
             Serializer = MainCatgorySerializer(data=Data)
-            fileitem = Data['categoryImage']
-            if fileitem:
-                fn = os.path.basename(fileitem)
-                open(fn, 'wb').write(fileitem.file.read())
-                message = 'The file "' + fn + '" was uploaded successfully'
-            else:
-                message = 'No file was uploaded'
-                print (message)
+            
             if Serializer.is_valid(raise_exception=True):
                 Serializer.save()
                 return Response({"msg": "Data Added successfully"},
@@ -268,9 +261,6 @@ class ProductAPI(APIView):
     def post(self, request, format=None):
         try:
             data = request.data
-            if len(request.FILES != 0):
-                data.productImage=request.FILES['productImage']
-                
             Serializer = ProductSerializer(data=data)
             if Serializer.is_valid(raise_exception=True):
                 Serializer.save()
@@ -357,6 +347,79 @@ class StaffAPI(APIView):
             return Response({"msg":"Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class DiscountAPI(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+    def post(self, request,format=None):
+        try:
+            Serializer = DiscountSerializer(data=request.data)
+            if Serializer.is_valid(raise_exception=True):
+                Serializer.save()
+                message={
+                    "msg":"Data added successfully",
+                    "status":"status.HTTP_201_CREATED"
+                }
+                return Response(message)
+            else:
+                return Response({"msg":"Something goes wrong"},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def get(self, request, format=None):
+        try:
+            get_data = DiscountModel.object.all()
+            Serializer = DiscountSerializer(get_data, many=True)
+            return Response(Serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def delete(self, request, format=None):
+        try:
+            id = request.GET.get(id)
+            get_data = DiscountModel.objects.filter(id=id).delete()
+            DiscountSerializer(get_data,many=True)
+            return Response({"msg":"Data delete successfully"},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class OffersAPI(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+    def post(self, request,format=None):
+        try:
+            Serializer = OfferSerializer(data=request.data)
+            if Serializer.is_valid(raise_exception=True):
+                Serializer.save()
+                message={
+                    "msg":"Data added successfully",
+                    "status":"status.HTTP_201_CREATED"
+                }
+                return Response(message)
+            else:
+                return Response({"msg":"Something goes wrong"},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def get(self, request, format=None):
+        try:
+            get_data = OfferModel.objects.all()
+            Serializer = OfferSerializer(get_data, many=True)
+            return Response(Serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def delete(self, request, format=None):
+        try:
+            id = request.GET.get(id)
+            get_data = OfferModel.objects.filter(id=id).delete()
+            OfferSerializer(get_data,many=True)
+            return Response({"msg":"Data delete successfully"},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+
 #########   LIST APIs  FOR DROPDOWN   ###############
 
 class MainCategoryListAPI(APIView):
@@ -368,7 +431,6 @@ class MainCategoryListAPI(APIView):
             return Response(Serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 
