@@ -1,8 +1,4 @@
-from email.policy import default
-from enum import unique
-from pyexpat import model
 from statistics import mode
-from tokenize import blank_re
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 # custom user manager create
@@ -151,4 +147,15 @@ class OfferModel(models.Model):
         db_table='Offer'
     def __str__(self):
         return self.offerName
+    
+class OrderItemModel(models.Model):
+    userId = models.ForeignKey(User, on_delete = models.CASCADE)
+    productId = models.ForeignKey(Product, on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=True)
+    qty = models.IntegerField()
+    class Meta:
+        db_table = 'Order'
+
+    def __str__(self):
+        return self.productId
          

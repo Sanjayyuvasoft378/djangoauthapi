@@ -154,3 +154,8 @@ class OfferSerializer(serializers.ModelSerializer):
         model = OfferModel
         fields = '__all__'
         
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItemModel
+        fields = '__all__'
+        

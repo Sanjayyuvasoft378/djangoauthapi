@@ -1,5 +1,5 @@
 from pathlib import Path
-from Acount.views import ChildCategoryAPI, DiscountAPI, EditProfileAPI, MainCategoryListAPI, MaincategoryAPI, MyProfileViewAPI, OffersAPI, PlanAPI, ProductAPI, RegistrationAPI, SandPasswordEmailAPI, SubCategoryAPI, UserChangePasswordAPI, UserLoginAPI, UserPasswordResetView
+from Acount.views import ChildCategoryAPI, DiscountAPI, EditProfileAPI, MainCategoryListAPI, MaincategoryAPI, MyProfileViewAPI, OffersAPI, OrderListAPI, PlanAPI, ProductAPI, RegistrationAPI, SandPasswordEmailAPI, SubCategoryAPI, UserChangePasswordAPI, UserLoginAPI, UserPasswordResetView
 from django.urls import path
 urlpatterns = [
 
@@ -19,6 +19,8 @@ path('maincatlist/',MainCategoryListAPI.as_view(),name='MainCategory'),
 path('plan/',PlanAPI.as_view(), name='planapi'),
 path('discount/',DiscountAPI.as_view(), name='DiscountAPI'),
 path('offers/',OffersAPI.as_view(), name='OffersAPI'),
+
+path('order/',OrderListAPI.as_view(),name='OrderListAPI'),
 
 
 ]

@@ -25,13 +25,13 @@ from PIL import Image
 #         return None
 
 
-# def midea_upload(form):
-#     fi = form['categoruImage']
-#     if fi.categoruImage:
-#         # This code will strip the leading absolute path from your file-name
-#         fil = os.path.basename(fi.categoruImage)
-#         # open for reading & writing the file into the server
-#         open(fil, 'wb').write(fi.file.read())
+def midea_upload(form):
+    fi = form['categoruImage']
+    if fi.categoruImage:
+        # This code will strip the leading absolute path from your file-name
+        fil = os.path.basename(fi.categoruImage)
+        # open for reading & writing the file into the server
+        open(fil, 'wb').write(fi)
 
 
 def get_tokens_for_user(user):
@@ -127,6 +127,9 @@ class MaincategoryAPI(APIView):
     def post(self, request, format=None):
         try:
             Data = request.data
+            cateImage = Data['categoryImage']
+            Data['categoryImage'] = midea_upload(cateImage)
+            print(1222111,Data['categoryImage'])
             Serializer = MainCatgorySerializer(data=Data)
             
             if Serializer.is_valid(raise_exception=True):
@@ -236,7 +239,6 @@ class ChildCategoryAPI(APIView):
             return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class EditProfileAPI(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -252,7 +254,6 @@ class EditProfileAPI(APIView):
         except Exception as e:
             return Response({"msg": "Internal server error {}".format(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class ProductAPI(APIView):
     renderer_classes = [UserRenderer]
@@ -419,7 +420,26 @@ class OffersAPI(APIView):
         except Exception as e:
             return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-
+class AddToCartAPI(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        try:
+            data=request.data
+            productId=data['productId']
+            get_data = Product.objects.filter(id=productId)
+            if get_data:
+                Serializer = ProductSerializer(data=request.data)
+                if Serializer.is_valid(raise_exception=True):
+                    Serializer.save()
+                    return Response({"msg":"Data add into cart successfully"},
+                                    status=status.HTTP_200_OK)
+                else:
+                    return Response({"message":"Product not available in stock"},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 #########   LIST APIs  FOR DROPDOWN   ###############
 
 class MainCategoryListAPI(APIView):
@@ -430,8 +450,20 @@ class MainCategoryListAPI(APIView):
             Serializer = MainCatgorySerializer(get_data,many=True)
             return Response(Serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"msg":"Internal server error {}".format(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+class OrderListAPI(APIView):
+    renderer_classes = [UserRenderer]
+    def get(self, request, format=None):
+        try:
+            get_data = OrderItemModel.objects.all()
+            Serializer = OrderSerializer(get_data, many=True)
+            return Response(Serializer.data,
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"msg":"Internal server error {}".format(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
 
 
